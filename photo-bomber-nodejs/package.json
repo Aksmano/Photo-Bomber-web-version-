@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "start-tunnel": "npx ts-node ./src/start.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.12.13",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "googleapis": "^137.1.0",
+    "localtunnel": "^2.0.2",
+    "multer": "^1.4.5-lts.1",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/localtunnel": "^2.0.4",
+    "nodemon": "^3.1.2",
+    "ts-node": "^10.9.2"
+  }
+}
