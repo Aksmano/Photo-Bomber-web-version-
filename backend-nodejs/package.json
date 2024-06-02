@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
-    "start-tunnel": "npx ts-node ./src/start.ts"
+    "watch": "nodemon ./src/server.ts",
+    "start": "npx ts-node ./src/server.ts",
+    "start-tunnel": "node start-localtunnel-nodejs.js"
   },
   "keywords": [],
   "author": "",

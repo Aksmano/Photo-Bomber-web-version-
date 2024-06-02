@@ -1,3 +1,3 @@
-Set-Location ..\photo-bomber-nodejs
+Set-Location ..\backend-nodejs
 node .\start-localtunnel-nodejs.js
 Set-Location ..\scripts

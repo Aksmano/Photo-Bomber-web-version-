@@ -4,10 +4,12 @@ import { google } from "googleapis";
 import fs from "fs";
 import path from "path";
 import cors from "cors";
+import * as serverConfig from '../config/server/server.config.json';
 
 const app = express();
 const upload = multer({ dest: "temp/uploads/" });
 const PORT = 5000;
+const credentialsPath: string = serverConfig.driveCredentialsPath;
 
 app.use(cors());
 app.use(express.json());
@@ -15,28 +17,23 @@ app.use(express.json());
 // Load service account credentials
 const KEYFILEPATH = path.join(
   __dirname,
-  "../config/credentials/googledrive.service-account.json"
+  credentialsPath
 );
-const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 
 const auth = new google.auth.GoogleAuth({
   keyFile: KEYFILEPATH,
-  scopes: SCOPES,
+  scopes: serverConfig.scopes,
 });
-
-const googleDriveDir = "1R8WAfexs_TPoxEo3JKy_-6ABInmZeRFk";
 
 const driveService = google.drive({ version: "v3", auth });
 
 app.post("/upload", upload.single("file"), async (req, res) => {
-  console.log(req.file);
-
   if (!!req.file) {
     try {
       const response = await driveService.files.create({
         requestBody: {
           name: req.file.originalname,
-          parents: [googleDriveDir],
+          parents: serverConfig.driveDirectories,
         },
         media: {
           mimeType: req.file.mimetype,
@@ -51,7 +48,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       fs.unlinkSync(req.file.path);
     }
   } else {
-    res.status(400).send(`Bad request`);
+    res.status(400).send(`File not sent`);
   }
 });
 

@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
 import "./App.css";
-import { publicIpv4 } from "public-ip";
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
@@ -34,8 +33,9 @@ const App: React.FC = () => {
   useEffect(() => {
     const getBackendUrl = async () => {
       try {
-        const response = await fetch("/backend-url.txt");
-        const url = await response.text();
+        const response = await fetch("/backend-settings.json");
+        const data = await response.json();
+        const url = data.backendUrl;
         setBackendUrl(url.trim());
       } catch (error) {
         console.error("Error fetching backend URL:", error);
@@ -63,17 +63,14 @@ const App: React.FC = () => {
         method: "POST",
         body: formData,
         headers: {
-          "bypass-tunnel-reminder": "any-value",
+          "bypass-tunnel-reminder": "hope-you-enjoy-guys",
         },
       });
       setStatus("pending");
       await request;
       setStatus("sent");
-      // alert("Upload successful");
     } catch (error) {
-      console.error("Upload failed:", error);
       setStatus(`fucked up: ${error}`);
-      // alert("Upload failed");
     }
   };
 

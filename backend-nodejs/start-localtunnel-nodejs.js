@@ -2,6 +2,9 @@ const { exec } = require("child_process");
 const localtunnel = require("localtunnel");
 const fs = require("fs");
 
+const directoryPath = "../frontend-react/dist";
+const serverSettings = {};
+
 // Function to start the server
 const startServer = () => {
   const serverProcess = exec("node dist/server.js", (error, stdout, stderr) => {
@@ -22,9 +25,13 @@ const startServer = () => {
 // Function to start localtunnel
 const startTunnel = async (port) => {
   const tunnel = await localtunnel({ port });
+  serverSettings.backendUrl = tunnel.url;
 
   console.log(`Server is publicly accessible at: ${tunnel.url}`);
-  fs.writeFileSync("../photo-bomber-react/dist/backend-url.txt", tunnel.url);
+  fs.writeFileSync(
+    `${directoryPath}/backend-settings.json`,
+    JSON.stringify(serverSettings)
+  );
 
   tunnel.on("close", () => {
     console.log("Tunnel closed");

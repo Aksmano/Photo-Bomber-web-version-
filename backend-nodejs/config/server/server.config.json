@@ -1,0 +1,5 @@
+{
+    "scopes": ["https://www.googleapis.com/auth/drive.file"],
+    "driveDirectories": ["1R8WAfexs_TPoxEo3JKy_-6ABInmZeRFk"],
+    "driveCredentialsPath": "../config/credentials/googledrive.service-account.json"
+}
