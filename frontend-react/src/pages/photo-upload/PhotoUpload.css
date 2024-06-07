@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.photo {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.capture-button {
+  margin: 0.5rem
+}
+
+input {
+  display: none;
+}
+
+.upload-button {
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+}

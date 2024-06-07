@@ -1,15 +1,36 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import "./utils/translation/i18n";
+import "/node_modules/primeflex/primeflex.css";
+import "primereact/resources/themes/lara-light-blue/theme.css";
+import "primeicons/primeicons.css";
+import reportWebVitals from "./reportWebVitals";
+import { PrimeReactProvider } from "primereact/api";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { MainLayout } from "./layout/main-layout/MainLayout";
+import { ToastContextProvider } from "./shared/components/toast/context/ToastContextProvider";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [{ index: true, element: <App /> }],
+  },
+]);
+
 root.render(
   // <React.StrictMode>
-    <App />
+  <PrimeReactProvider>
+    <ToastContextProvider>
+      <RouterProvider router={router} />
+    </ToastContextProvider>
+  </PrimeReactProvider>
   // </React.StrictMode>
 );
 
