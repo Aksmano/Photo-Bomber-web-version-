@@ -27,7 +27,7 @@ const router = createBrowserRouter([
 root.render(
   // <React.StrictMode>
   <PrimeReactProvider>
-    <ToastContextProvider>
+    <ToastContextProvider style={{ fontFamily: "Caroline" }}>
       <RouterProvider router={router} />
     </ToastContextProvider>
   </PrimeReactProvider>

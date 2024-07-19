@@ -1,11 +1,35 @@
+@font-face {
+  font-family: "Gistesy";
+  src: url("../fonts/Gistesy.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "A day without sun";
+  src: url("../fonts/A\ DAY\ WITHOUT\ SUN.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "A day without sun text";
+  src: url("../fonts/A_Day_Without_Sun_Text_Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Scriptina Pro";
+  src: url("../fonts/Scriptina Pro.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Caroline";
+  src: url("../fonts/Caroline.otf") format("opentype");
+}
+
 html,
 body {
   height: 100%;
   width: 100%;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: "A day without sun text", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

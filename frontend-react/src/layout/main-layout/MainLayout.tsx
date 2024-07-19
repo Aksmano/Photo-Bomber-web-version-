@@ -1,12 +1,16 @@
+import { CSSProperties } from "react";
 import "./MainLayout.css";
 import { Outlet } from "react-router-dom";
-import { Navbar } from "./components/Navbar";
+
+const style: CSSProperties = {
+  backgroundImage: `url("${window.origin}/background.png")`,
+  backgroundSize: 'cover'
+};
 
 export const MainLayout = () => {
   return (
     <div className="h-full">
-      <Navbar />
-      <div className="main-layout-outlet_container">
+      <div style={style} className="main-layout-outlet_container">
         <Outlet />
       </div>
     </div>

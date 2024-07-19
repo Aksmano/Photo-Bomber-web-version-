@@ -5,23 +5,26 @@ const translationPolish: TranslationResource = {
     title: "Photo Bober",
   },
   photoUpload: {
-    header: "Jakiś fajny header z napisem",
-    paragraph: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sagittis
-            lectus vel sapien venenatis fringilla. Quisque at sodales mauris. Nullam
-            efficitur ante ut elit consequat feugiat eu ac enim. Aenean porta nibh
-            sit amet pulvinar suscipit.`,
+    header: "WedPix",
+    paragraph: `Dodaj więcej wspomnień!`,
     loadingSpinner: "Wysyłanie...",
     mediaSubmit: {
-      videoButton: "Nagraj video",
-      photoButton: "Zrób zdjęcie",
-      fromGalleryButton: "Dodaj video lub zdjęcie",
+      videoButton: "Film",
+      photoButton: "Zdjęcie",
+      fromGalleryButton: "Dodaj z galerii",
       submitButtonPhoto: "Dodaj zdjęcie",
-      submitButtonVideo: "Dodaj video",
+      submitButtonVideo: "Dodaj film",
       successToastPhoto: "Twoje zdjęcie zostało wysłane!",
-      successToastVideo: "Twoje video zostało wysłane!",
+      successToastVideo: "Twój film został wysłany!",
       errorToast:
         "Coś poszło nie tak podczas wysyłania, spróbuj wysłać ponownie lub przyjdź po pomoc do Pana Młodego",
     },
+  },
+  toast: {
+    success: "Udało się :)",
+    info: "Info",
+    warning: "Uwaga",
+    error: "Wystąpił błąd",
   },
 };
 

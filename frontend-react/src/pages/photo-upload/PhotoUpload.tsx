@@ -32,8 +32,6 @@ export const PhotoUpload = () => {
   const { t } = useTranslation();
   const toast = useToast();
 
-  // Fetch the backend URL from the file
-
   const getPageText = (key: PhotoUploadI18NKeys) =>
     t(createNestedKey(TranslationResourceKeys.PhotoUpload, key));
   const getSubmitText = (key: MediaSubmitI18NKeys) =>
@@ -90,15 +88,14 @@ export const PhotoUpload = () => {
       setUploadStatus(UploadStatus.Pending);
       await request;
       setUploadStatus(UploadStatus.Sent);
+      uploadType === UploadType.Photo
+        ? toast.success(getSubmitText(MediaSubmitI18NKeys.SuccessToastPhoto))
+        : toast.success(getSubmitText(MediaSubmitI18NKeys.SuccessToastVideo));
     } catch (error) {
       setUploadStatus(UploadStatus.Failed);
       toast.error(getSubmitText(MediaSubmitI18NKeys.ErrorToast));
     } finally {
       setUploadStatus(UploadStatus.Idle);
-      uploadType === UploadType.Photo
-        ? toast.success(getSubmitText(MediaSubmitI18NKeys.SuccessToastPhoto))
-        : toast.success(getSubmitText(MediaSubmitI18NKeys.SuccessToastVideo));
-
       setFile(null);
       setFileUrl("");
     }
@@ -106,49 +103,61 @@ export const PhotoUpload = () => {
 
   return (
     <div className="flex p-1 h-full flex-column gap-1 align-items-center justify-content-center">
-      <div className="flex text-center font-bold text-3xl">
+      <div
+        style={{ fontFamily: "A day without sun" }}
+        className="flex text-center mt-7 text-8xl"
+      >
         {getPageText(PhotoUploadI18NKeys.Header)}
       </div>
-      <div className="flex text-justify mx-3 text-base">
+      <div className="flex text-justify mx-3 text-4xl">
         {getPageText(PhotoUploadI18NKeys.Paragraph)}
       </div>
       <div className="flex flex-column align-items-center justify-content-center">
-        {file && (
-          <>
-            {uploadType === UploadType.Video && (
-              <video controls className="max-w-20rem my-4">
-                <source src={fileUrl} />
-              </video>
-            )}
-            {uploadType === UploadType.Photo && (
-              <img
-                className="max-w-20rem max-h-17rem my-4"
-                src={fileUrl}
-                alt="Captured"
-              />
-            )}
-            <Button
-              icon="pi pi-upload"
-              label={
-                uploadType === UploadType.Photo
-                  ? getSubmitText(MediaSubmitI18NKeys.SubmitButtonPhoto)
-                  : getSubmitText(MediaSubmitI18NKeys.SubmitButtonVideo)
-              }
-              className="upload-button"
-              onClick={uploadPhotoToDrive}
-            />
-          </>
+        <div
+          className={`preview border-round-xs ${!file && "preview-min-size"}`}
+        >
+          {/* <div className="inner-preview border-round-xs"> */}
+          {file && (
+            <>
+              {uploadType === UploadType.Video && (
+                <video
+                  controls
+                  className="max-w-20rem max-h-20rem border-round-xs"
+                >
+                  <source src={fileUrl} />
+                </video>
+              )}
+              {uploadType === UploadType.Photo && (
+                <img
+                  className="max-w-20rem max-h-20rem border-round-xs"
+                  src={fileUrl}
+                  alt="Captured"
+                />
+              )}
+            </>
+          )}
+          {/* </div> */}
+        </div>
+        {!!file && (
+          <Button
+            label={
+              uploadType === UploadType.Photo
+                ? getSubmitText(MediaSubmitI18NKeys.SubmitButtonPhoto)
+                : getSubmitText(MediaSubmitI18NKeys.SubmitButtonVideo)
+            }
+            disabled={statusPending()}
+            className="upload-button"
+            onClick={uploadPhotoToDrive}
+          />
         )}
       </div>
       <div className="flex flex-grow-1"></div>
       {statusPending() ? (
-        <div className="mb-4">
-          <LoadingSpinner
-            text={getPageText(PhotoUploadI18NKeys.LoadingSpinner)}
-          />
+        <div className="loading-spinner">
+          <LoadingSpinner />
         </div>
       ) : (
-        <div className="flex flex-column align-item-center justify-content-center">
+        <div className="flex flex-column align-item-center justify-content-center mb-8">
           <div className="flex w-full align-item-center justify-content-around">
             <Button
               icon="pi pi-video"
@@ -156,6 +165,7 @@ export const PhotoUpload = () => {
               label={getSubmitText(MediaSubmitI18NKeys.VideoButton)}
               className="capture-button w-full"
               onClick={() => videoInputRef.current?.click()}
+              outlined
             />
             <Button
               icon="pi pi-camera"
@@ -163,14 +173,16 @@ export const PhotoUpload = () => {
               size="large"
               className="capture-button w-full"
               onClick={() => photoInputRef.current?.click()}
+              outlined
             />
           </div>
           <Button
-            icon="pi pi-images"
+            // icon="pi pi-images"
             label={getSubmitText(MediaSubmitI18NKeys.FromGalleryButton)}
             size="large"
-            className="flex capture-button flex-grow-1"
+            className="flex capture-button flex-grow-1 mb-3"
             onClick={() => galleryInputRef.current?.click()}
+            outlined
           />
           <FileInputs
             galleryInputRef={galleryInputRef}
