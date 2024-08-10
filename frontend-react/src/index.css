@@ -1,9 +1,4 @@
 @font-face {
-  font-family: "Gistesy";
-  src: url("../fonts/Gistesy.ttf") format("truetype");
-}
-
-@font-face {
   font-family: "A day without sun";
   src: url("../fonts/A\ DAY\ WITHOUT\ SUN.otf") format("opentype");
 }
@@ -11,16 +6,6 @@
 @font-face {
   font-family: "A day without sun text";
   src: url("../fonts/A_Day_Without_Sun_Text_Regular.otf") format("opentype");
-}
-
-@font-face {
-  font-family: "Scriptina Pro";
-  src: url("../fonts/Scriptina Pro.otf") format("opentype");
-}
-
-@font-face {
-  font-family: "Caroline";
-  src: url("../fonts/Caroline.otf") format("opentype");
 }
 
 html,

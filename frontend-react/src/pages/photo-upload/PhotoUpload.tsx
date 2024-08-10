@@ -2,7 +2,7 @@ import "./PhotoUpload.css";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { UploadType } from "./domain/UploadType";
 import { Button } from "primereact/button";
-import { FileInputs } from "./components/FileInput";
+import { FileInputs } from "./components/FileInputs";
 import { UploadStatus } from "./domain/UploadStatus";
 import { useUploadStatus } from "./hooks/useUploadStatus";
 import { LoadingSpinner } from "../../shared/components/loading-spinner/LoadingSpinner";
@@ -22,7 +22,6 @@ export const PhotoUpload = () => {
   const [uploadType, setUploadType] = useState<UploadType | null>(
     UploadType.Photo
   );
-  const [backendUrl, setBackendUrl] = useState<string | null>(null);
 
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
@@ -44,25 +43,14 @@ export const PhotoUpload = () => {
     );
 
   useEffect(() => {
-    const getBackendUrl = async () => {
-      try {
-        const response = await fetch("/backend-settings.json");
-        const data = await response.json();
-        const url = data.backendUrl;
-        setBackendUrl(url.trim());
-      } catch (error) {
-        console.error("Error fetching backend URL:", error);
-      }
-    };
     const getDefaultPhoto = async () => {
       const response = await fetch("/logo192.png");
       setFileUrl(URL.createObjectURL(await response.blob()));
     };
     getDefaultPhoto();
-    getBackendUrl();
   }, []);
 
-  const handlePhotoCapture = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleMediaFileCapture = (event: ChangeEvent<HTMLInputElement>) => {
     const newFile = event.target.files ? event.target.files[0] : null;
     if (newFile) {
       setUploadType(newFile.type.split("/")[0] as UploadType);
@@ -71,14 +59,14 @@ export const PhotoUpload = () => {
     }
   };
 
-  const uploadPhotoToDrive = async () => {
+  const uploadMediaFileToDrive = async () => {
     if (!file) return;
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const request = fetch(`${backendUrl}/upload`, {
+      const request = fetch(`api/upload`, {
         method: "POST",
         body: formData,
         headers: {
@@ -86,18 +74,22 @@ export const PhotoUpload = () => {
         },
       });
       setUploadStatus(UploadStatus.Pending);
-      await request;
+      const response = await request;
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
       setUploadStatus(UploadStatus.Sent);
       uploadType === UploadType.Photo
         ? toast.success(getSubmitText(MediaSubmitI18NKeys.SuccessToastPhoto))
         : toast.success(getSubmitText(MediaSubmitI18NKeys.SuccessToastVideo));
-    } catch (error) {
-      setUploadStatus(UploadStatus.Failed);
-      toast.error(getSubmitText(MediaSubmitI18NKeys.ErrorToast));
-    } finally {
+
       setUploadStatus(UploadStatus.Idle);
       setFile(null);
       setFileUrl("");
+    } catch (error) {
+      setUploadStatus(UploadStatus.Failed);
+      toast.error(getSubmitText(MediaSubmitI18NKeys.ErrorToast));
     }
   };
 
@@ -147,7 +139,7 @@ export const PhotoUpload = () => {
             }
             disabled={statusPending()}
             className="upload-button"
-            onClick={uploadPhotoToDrive}
+            onClick={uploadMediaFileToDrive}
           />
         )}
       </div>
@@ -188,7 +180,7 @@ export const PhotoUpload = () => {
             galleryInputRef={galleryInputRef}
             videoInputRef={videoInputRef}
             photoInputRef={photoInputRef}
-            handlePhotoCapture={handlePhotoCapture}
+            handleMediaFileCapture={handleMediaFileCapture}
           />
         </div>
       )}

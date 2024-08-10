@@ -4,18 +4,17 @@ interface FileInputsProps {
   galleryInputRef: MutableRefObject<HTMLInputElement | null>;
   videoInputRef: MutableRefObject<HTMLInputElement | null>;
   photoInputRef: MutableRefObject<HTMLInputElement | null>;
-  handlePhotoCapture: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleMediaFileCapture: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const FileInputs = ({
   galleryInputRef,
   photoInputRef,
   videoInputRef,
-  handlePhotoCapture,
+  handleMediaFileCapture: handlePhotoCapture,
 }: FileInputsProps) => {
   return (
     <>
-      {" "}
       <input
         ref={galleryInputRef}
         type="file"

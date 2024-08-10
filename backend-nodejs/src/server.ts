@@ -27,7 +27,7 @@ const auth = new google.auth.GoogleAuth({
 
 const driveService = google.drive({ version: "v3", auth });
 
-app.post("/upload", upload.single("file"), async (req, res) => {
+app.post("/api/upload", upload.single("file"), async (req, res) => {
   if (!!req.file) {
     try {
       const response = await driveService.files.create({
