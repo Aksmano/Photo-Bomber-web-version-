@@ -1,4 +1,5 @@
 .custom-toast {
   font-family: "A day without sun text";
-  font-size: 1.25rem;
+  min-width: 900px;
+  font-size: 3rem;
 }

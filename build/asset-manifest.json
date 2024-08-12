@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.63bb7448.css",
+    "main.js": "/static/js/main.f311f972.js",
+    "static/js/726.8c11f7b5.chunk.js": "/static/js/726.8c11f7b5.chunk.js",
+    "static/js/453.347e4306.chunk.js": "/static/js/453.347e4306.chunk.js",
+    "static/media/A DAY WITHOUT SUN.otf": "/static/media/A DAY WITHOUT SUN.f2904368393acf95b5c9.otf",
+    "static/media/primeicons.svg": "/static/media/primeicons.6ed59f962963a4a73af2.svg",
+    "static/media/Inter-italic.var.woff2?v=3.19": "/static/media/Inter-italic.var.30807be7abc48ba8c73c.woff2",
+    "static/media/Inter-roman.var.woff2?v=3.19": "/static/media/Inter-roman.var.ba4caefcdf5b36b438db.woff2",
+    "static/media/A_Day_Without_Sun_Text_Regular.otf": "/static/media/A_Day_Without_Sun_Text_Regular.2bfb85cf1b8110fb8287.otf",
+    "static/media/primeicons.eot": "/static/media/primeicons.ff0c4cd79b2ffca2de54.eot",
+    "static/media/primeicons.woff": "/static/media/primeicons.8931fda1930c3bd21e96.woff",
+    "static/media/primeicons.ttf": "/static/media/primeicons.a5c2a53d1ff7a9ff5933.ttf",
+    "static/media/primeicons.woff2": "/static/media/primeicons.024b32cc7bf399b1a847.woff2",
+    "index.html": "/index.html",
+    "main.63bb7448.css.map": "/static/css/main.63bb7448.css.map",
+    "main.f311f972.js.map": "/static/js/main.f311f972.js.map",
+    "726.8c11f7b5.chunk.js.map": "/static/js/726.8c11f7b5.chunk.js.map",
+    "453.347e4306.chunk.js.map": "/static/js/453.347e4306.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.63bb7448.css",
+    "static/js/main.f311f972.js"
+  ]
+}

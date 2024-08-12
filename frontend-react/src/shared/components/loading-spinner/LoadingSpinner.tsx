@@ -8,7 +8,7 @@ export const LoadingSpinner = ({ text }: LoadingSpinnerProps) => {
   return (
     <div className="flex flex-column align-items-center justify-content-center">
       <ProgressSpinner strokeWidth="3" />
-      {!!text && <div className="flex font-bold text-base">{text}</div>}
+      {!!text && <div className="flex font-bold text-7xl">{text}</div>}
     </div>
   );
 };

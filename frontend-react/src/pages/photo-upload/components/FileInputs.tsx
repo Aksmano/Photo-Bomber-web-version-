@@ -18,7 +18,7 @@ export const FileInputs = ({
       <input
         ref={galleryInputRef}
         type="file"
-        accept="image/*, video/*"
+        accept="image/*"
         onChange={handlePhotoCapture}
       />
       <input

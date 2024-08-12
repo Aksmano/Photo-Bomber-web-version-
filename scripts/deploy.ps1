@@ -11,6 +11,7 @@ Set-Location ..
 Copy-Item -Recurse backend-nodejs/config build/config
 # Copy-Item -Recurse backend-nodejs/node_modules build/node_modules
 Copy-Item -Recurse backend-nodejs/dist/server.js build/server.js
+Copy-Item -Recurse backend-nodejs/dist/utils.js build/utils.js
 Copy-Item backend-nodejs/package.json build/package.json
 Copy-Item backend-nodejs/package-lock.json build/package-lock.json
 

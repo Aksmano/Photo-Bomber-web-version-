@@ -12,6 +12,7 @@ const translationPolish: TranslationResource = {
       videoButton: "Film",
       photoButton: "Zdjęcie",
       fromGalleryButton: "Dodaj z galerii",
+      changeCameraButton: "Zmień kamerę",
       submitButtonPhoto: "Dodaj zdjęcie",
       submitButtonVideo: "Dodaj film",
       successToastPhoto: "Twoje zdjęcie zostało wysłane!",
@@ -25,6 +26,13 @@ const translationPolish: TranslationResource = {
     info: "Info",
     warning: "Uwaga",
     error: "Wystąpił błąd",
+  },
+  videoRecorder: {
+    addNewVideo: "Dodaj film!",
+    repeatRecordingButton: "Nagraj ponownie",
+    startRecordingButton: "Rozpocznij nagrywanie",
+    stopRecordingButton: "Zakończ nagrywanie",
+    switchCamera: "Zmień kamerę",
   },
 };
 

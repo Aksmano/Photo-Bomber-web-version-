@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
@@ -8,30 +8,27 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primeicons/primeicons.css";
 import reportWebVitals from "./reportWebVitals";
 import { PrimeReactProvider } from "primereact/api";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { MainLayout } from "./layout/main-layout/MainLayout";
 import { ToastContextProvider } from "./shared/components/toast/context/ToastContextProvider";
+
+const style: CSSProperties = {
+  backgroundImage: `url("${window.origin}/background.png")`,
+  backgroundSize: "cover",
+  backgroundAttachment: "fixed",
+  height: "100%",
+};
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainLayout />,
-    children: [{ index: true, element: <App /> }],
-  },
-]);
-
 root.render(
-  // <React.StrictMode>
   <PrimeReactProvider>
     <ToastContextProvider style={{ fontFamily: "Caroline" }}>
-      <RouterProvider router={router} />
+      <div style={style}>
+        <App />
+      </div>
     </ToastContextProvider>
   </PrimeReactProvider>
-  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
