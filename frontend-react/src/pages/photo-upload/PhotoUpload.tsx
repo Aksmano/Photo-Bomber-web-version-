@@ -3,8 +3,6 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { UploadType } from "./domain/UploadType";
 import { Button } from "primereact/button";
 import { FileInputs } from "./components/FileInputs";
-import { UploadStatus } from "./domain/UploadStatus";
-import { useUploadStatus } from "./hooks/useUploadStatus";
 import { LoadingSpinner } from "../../shared/components/loading-spinner/LoadingSpinner";
 import { useToast } from "../../shared/components/toast/hooks/useToast";
 import { useTranslation } from "react-i18next";
@@ -15,47 +13,37 @@ import { MediaSubmitI18NKeys } from "../../utils/translation/domain/photo-upload
 import { useMediaFileUpload } from "./hooks/useMediaFileUpload";
 import { v4 } from "uuid";
 import { useMediaFileCompress } from "./hooks/useMediaFileCompress";
-import { useNavigate, useOutletContext } from "react-router-dom";
-import { RecordingState } from "../video-recorder/VideoRecorder";
-import { useMediaRecorder } from "../video-recorder/hooks/useMediaRecorder";
+import { useOutletContext } from "react-router-dom";
 import { MainLayoutOutletContextType } from "../../layout/main-layout/MainLayout";
+import { PercentageProgress } from "../../shared/components/percentatage-progress/PercentageProgress";
+import { useIndexedDBMediaFile } from "./hooks/useIndexedDBMediaFile";
 
-const CHUNK_SIZE = 1024 * 1024; // 1GB
+const CHUNK_SIZE = 1024 * 1024; // 1MB
 
 export const PhotoUpload = () => {
   const [file, setFile] = useState<File | null>();
-  // const [fileUrl, setFileUrl] = useState<string>("");
-  const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
-    UploadStatus.Idle
-  );
   const [uploadType, setUploadType] = useState<UploadType | null>(
     UploadType.Photo
   );
   const [uploadingPhoto, setUploadingPhoto] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [gettingAddedPhoto, setIfGettingAddedPhoto] = useState<boolean>(false);
+  const [compressingFile, setIfCompressingFile] = useState<boolean>(false);
+  const [videoCompressionProgress, setVideoCompressionProgress] =
+    useState<number>(0);
 
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
   const photoInputRef = useRef<HTMLInputElement | null>(null);
   const uploadedChunksRef = useRef<number>(0);
 
-  const [recording, setRecording] = useState<RecordingState>(
-    RecordingState.Idle
+  const { uploadMediaFileToDrive, downloadMediaFile } = useMediaFileUpload();
+  const { compressPhoto, compressVideo } = useMediaFileCompress(
+    setVideoCompressionProgress
   );
-  const [videoUrl, setVideoUrl] = useState<string>("");
-  const [recordingTime, setRecordingTime] = useState<number>(0);
-
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useMediaRecorder(videoRef, setVideoUrl, setRecording, setRecordingTime);
-
-  const { statusPending } = useUploadStatus(uploadStatus);
-  const { uploadMediaFileToDrive } = useMediaFileUpload();
-  const { compressPhoto } = useMediaFileCompress();
+  const { deleteMediaFileBinaryData, getMediaFileBinaryData } =
+    useIndexedDBMediaFile();
   const { t } = useTranslation();
   const toast = useToast();
-  const navigate = useNavigate();
   const { fileUrl, setFileUrl, sendFile, setIfSendFile } =
     useOutletContext<MainLayoutOutletContextType>();
 
@@ -69,9 +57,47 @@ export const PhotoUpload = () => {
     );
 
   useEffect(() => {
+    const load = async () => {
+      const { data: idbCacheData, type: idbCacheType } =
+        await getMediaFileBinaryData();
+
+      if (!idbCacheData) {
+        return;
+      }
+
+      let newFile: File;
+
+      switch (idbCacheType) {
+        case UploadType.Photo:
+          newFile = new File([idbCacheData], v4(), {
+            type: "photo/jpeg",
+          });
+
+          setUploadType(UploadType.Photo);
+          setFile(newFile);
+          setFileUrl(URL.createObjectURL(newFile));
+          break;
+        case UploadType.Video:
+          newFile = new File([idbCacheData], v4(), {
+            type: "photo/mp4",
+          });
+
+          setUploadType(UploadType.Video);
+          setFile(newFile);
+          setFileUrl(URL.createObjectURL(newFile));
+          break;
+      }
+    };
+
+    load();
+    //eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
     if (sendFile) {
       uploadMediaFile().then(() => setIfSendFile(false));
     }
+    //eslint-disable-next-line
   }, [sendFile]);
 
   const handleMediaFileCapture = async (
@@ -79,21 +105,36 @@ export const PhotoUpload = () => {
   ) => {
     const newFile = event.target.files ? event.target.files[0] : null;
     if (newFile) {
-      setIfGettingAddedPhoto(true);
+      const fileType = newFile.type.split("/")[0] as UploadType;
+      const fileExtensionType = newFile.type.split("/")[1] as UploadType;
+
+      setIfCompressingFile(true);
       setFileUrl("");
       setFile(null);
-      const type = newFile.type.split("/")[0] as UploadType;
-      const { fileUrl, compressedFile } =
-        type === UploadType.Photo
-          ? await compressPhoto(newFile, type)
-          : // : await compressVideo(newFile, type); // Operation to hard to handle for phone
-            { fileUrl: URL.createObjectURL(newFile), compressedFile: newFile };
+      setUploadType(fileType);
 
-      setUploadType(type);
+      const { fileUrl, compressedFile } =
+        fileType === UploadType.Photo
+          ? await compressPhoto(newFile, fileExtensionType)
+          : await compressVideo(newFile, fileExtensionType);
+
       setFileUrl(fileUrl);
       setFile(compressedFile);
-      setIfGettingAddedPhoto(false);
+      setIfCompressingFile(false);
     }
+  };
+
+  const handleMediaFileDelete = async () => {
+    setIfCompressingFile(false);
+    setFileUrl("");
+    setFile(null);
+    await deleteMediaFileBinaryData();
+
+    toast.info(
+      uploadType === UploadType.Photo
+        ? getSubmitText(MediaSubmitI18NKeys.InfoToastPhotoDeleted)
+        : getSubmitText(MediaSubmitI18NKeys.InfoToastVideoDeleted)
+    );
   };
 
   const uploadMediaFile = async () => {
@@ -111,11 +152,10 @@ export const PhotoUpload = () => {
         CHUNK_SIZE,
         (chunks: Blob[]) => {
           setUploadProgress(
-            Math.round((++uploadedChunksRef.current / chunks.length) * 100)
+            Math.floor((++uploadedChunksRef.current / chunks.length) * 100)
           );
         },
         () => {
-          setUploadStatus(UploadStatus.Sent);
           uploadedChunksRef.current = 0;
           uploadType === UploadType.Photo
             ? toast.success(
@@ -125,112 +165,165 @@ export const PhotoUpload = () => {
                 getSubmitText(MediaSubmitI18NKeys.SuccessToastVideo)
               );
 
-          setUploadStatus(UploadStatus.Idle);
           setUploadingPhoto(false);
           setUploadProgress(0);
           setFile(null);
           setFileUrl("");
         },
         () => {
-          setUploadStatus(UploadStatus.Failed);
           toast.error(getSubmitText(MediaSubmitI18NKeys.ErrorToast));
         }
       );
+
+      await deleteMediaFileBinaryData();
     } catch (error) {}
   };
 
   return (
     <>
       <div className="flex flex-column align-items-center justify-content-center">
-        {!gettingAddedPhoto && (
-          <div
-            className={`preview border-round-xs ${!file && "preview-min-size"}`}
-          >
-            {/* <div className="inner-preview border-round-xs"> */}
-            {file ? (
-              <>
-                {uploadType === UploadType.Video && (
-                  <video controls>
-                    <source src={fileUrl} />
-                  </video>
-                )}
-                {uploadType === UploadType.Photo && (
-                  <img
-                    src={fileUrl}
-                    alt="Captured"
-                    className="preview-max-size-img"
-                  />
-                )}
-              </>
-            ) : (
-              <video ref={videoRef} autoPlay muted playsInline></video>
-            )}
-          </div>
-        )}
-        {!!file && (
-          <Button
-            label={
-              uploadType === UploadType.Photo
-                ? getSubmitText(MediaSubmitI18NKeys.SubmitButtonPhoto)
-                : getSubmitText(MediaSubmitI18NKeys.SubmitButtonVideo)
-            }
-            disabled={statusPending()}
-            className="upload-button"
-            onClick={uploadMediaFile}
-          />
-        )}
+        <div
+          className={`preview border-round-xs ${!file && "preview-min-size"}`}
+        >
+          {file && (
+            <>
+              {uploadType === UploadType.Video && (
+                <video
+                  controls
+                  className="max-w-20rem max-h-20rem border-round-xs"
+                >
+                  <source src={fileUrl} />
+                </video>
+              )}
+              {uploadType === UploadType.Photo && (
+                <img
+                  src={fileUrl}
+                  alt="Captured"
+                  className="max-w-20rem max-h-20rem border-round-xs"
+                />
+              )}
+            </>
+          )}
+        </div>
       </div>
-
       <div className="flex flex-grow-1"></div>
       {uploadingPhoto ? (
         <div className="loading-spinner">
-          <LoadingSpinner text={`${uploadProgress}%`} />
+          {uploadType === UploadType.Video && (
+            <PercentageProgress percentage={uploadProgress} />
+          )}
+          <LoadingSpinner
+            text={
+              uploadType === UploadType.Photo
+                ? getSubmitText(MediaSubmitI18NKeys.UploadProgressPhoto)
+                : getSubmitText(MediaSubmitI18NKeys.UploadProgressVideo)
+            }
+            textClassNames="font-bold"
+          />
         </div>
-      ) : gettingAddedPhoto ? (
+      ) : compressingFile ? (
         <div className="loading-spinner">
-          <LoadingSpinner text={"Ładowanie zdjęcia"} />
+          {uploadType === UploadType.Video && (
+            <PercentageProgress percentage={videoCompressionProgress} />
+          )}
+          <LoadingSpinner
+            text={
+              uploadType === UploadType.Photo
+                ? getSubmitText(MediaSubmitI18NKeys.CompressionProgressPhoto)
+                : getSubmitText(MediaSubmitI18NKeys.CompressionProgressVideo)
+            }
+          />
+          <div className="flex w-full align-items-center justify-content-center font-bold text-justify mt-1 text-lg">
+            {getSubmitText(MediaSubmitI18NKeys.InterruptCompressionText)}
+          </div>
         </div>
       ) : (
-        <div className="flex flex-column align-item-center justify-content-center mb-8">
-          <div className="flex w-full align-item-center justify-content-around">
-            <Button
-              icon="pi pi-video"
-              size="large"
-              label={getSubmitText(MediaSubmitI18NKeys.VideoButton)}
-              className="capture-button"
-              onClick={() => {
-                setFileUrl("");
-                navigate("video");
-              }}
-              outlined
-            />
-            <Button
-              icon="pi pi-camera"
-              label={getSubmitText(MediaSubmitI18NKeys.PhotoButton)}
-              size="large"
-              className="capture-button"
-              onClick={() => photoInputRef.current?.click()}
-              outlined
-            />
+        !uploadingPhoto && (
+          <div className="flex flex-column align-item-center justify-content-center mb-8">
+            {!!file ? (
+              <>
+                <div className="flex w-full align-item-center justify-content-between">
+                  <Button
+                    icon={"pi pi-cloud-upload"}
+                    size="large"
+                    outlined
+                    label={
+                      uploadType === UploadType.Photo
+                        ? getSubmitText(MediaSubmitI18NKeys.SubmitButtonPhoto)
+                        : getSubmitText(MediaSubmitI18NKeys.SubmitButtonVideo)
+                    }
+                    className="capture-button w-full"
+                    onClick={uploadMediaFile}
+                  />
+                  <Button
+                    icon={"pi pi-trash"}
+                    size="large"
+                    outlined
+                    label={
+                      uploadType === UploadType.Photo
+                        ? getSubmitText(MediaSubmitI18NKeys.RemovePhotoButton)
+                        : getSubmitText(MediaSubmitI18NKeys.RemoveVideoButton)
+                    }
+                    className="capture-button w-full"
+                    onClick={handleMediaFileDelete}
+                  />
+                </div>
+                <Button
+                  size="large"
+                  outlined
+                  label={getSubmitText(MediaSubmitI18NKeys.DownloadFileButton)}
+                  className="flex capture-button flex-grow-1 mb-3"
+                  onClick={() => {
+                    downloadMediaFile(
+                      fileUrl,
+                      `${file.name}.${file.type.split("/")[1]}`
+                    );
+                    toast.info(
+                      getSubmitText(MediaSubmitI18NKeys.InfoToastDownloadFile)
+                    );
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <div className="flex w-full align-item-center justify-content-around">
+                  <Button
+                    icon="pi pi-video"
+                    size="large"
+                    label={getSubmitText(MediaSubmitI18NKeys.VideoButton)}
+                    className="capture-button w-full"
+                    onClick={() => videoInputRef.current?.click()}
+                    outlined
+                  />
+                  <Button
+                    icon="pi pi-camera"
+                    label={getSubmitText(MediaSubmitI18NKeys.PhotoButton)}
+                    size="large"
+                    className="capture-button w-full"
+                    onClick={() => photoInputRef.current?.click()}
+                    outlined
+                  />
+                </div>
+                <Button
+                  label={getSubmitText(MediaSubmitI18NKeys.FromGalleryButton)}
+                  size="large"
+                  className="flex capture-button flex-grow-1 mb-3"
+                  onClick={() => galleryInputRef.current?.click()}
+                  outlined
+                />
+                <FileInputs
+                  galleryInputRef={galleryInputRef}
+                  videoInputRef={videoInputRef}
+                  photoInputRef={photoInputRef}
+                  handleMediaFileCapture={(e) => {
+                    setIfCompressingFile(true);
+                    handleMediaFileCapture(e);
+                  }}
+                />
+              </>
+            )}
           </div>
-          <Button
-            // icon="pi pi-images"
-            label={getSubmitText(MediaSubmitI18NKeys.FromGalleryButton)}
-            size="large"
-            className="flex capture-button flex-grow-1 mb-3"
-            onClick={() => galleryInputRef.current?.click()}
-            outlined
-          />
-          <FileInputs
-            galleryInputRef={galleryInputRef}
-            videoInputRef={videoInputRef}
-            photoInputRef={photoInputRef}
-            handleMediaFileCapture={(e) => {
-              setIfGettingAddedPhoto(true);
-              handleMediaFileCapture(e);
-            }}
-          />
-        </div>
+        )
       )}
     </>
   );

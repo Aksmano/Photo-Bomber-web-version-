@@ -1,7 +1,6 @@
-import React, { useReducer } from "react";
+import React from "react";
 import "./App.css";
 import { PhotoUpload } from "./pages/photo-upload/PhotoUpload";
-import { VideoRecorder } from "./pages/video-recorder/VideoRecorder";
 import {
   createBrowserRouter,
   Navigate,
@@ -21,10 +20,10 @@ const App: React.FC = () => {
           index: true,
           element: <PhotoUpload />,
         },
-        {
-          path: "video",
-          element: <VideoRecorder />,
-        },
+        // {
+        //   path: "video",
+        //   element: <VideoRecorder />,
+        // },
       ],
     },
     {

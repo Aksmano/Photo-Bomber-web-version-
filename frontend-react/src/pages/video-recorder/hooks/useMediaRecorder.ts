@@ -51,8 +51,8 @@ export const useMediaRecorder = (
         const newStream = await navigator.mediaDevices.getUserMedia({
           video: {
             deviceId: { exact: videoDeviceIdsRef.current[camera] },
-            width: { min: 640, ideal: 1280 },
-            height: { min: 340, ideal: 720 },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
           },
           audio: {
             channelCount: 2,
@@ -89,6 +89,7 @@ export const useMediaRecorder = (
         });
       }
     };
+    //eslint-disable-next-line
   }, [camera]);
 
   const startRecording = () => {

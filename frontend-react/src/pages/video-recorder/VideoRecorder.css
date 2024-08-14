@@ -1,4 +1,4 @@
-.capture-button {
+/* .capture-button {
   color: black;
   font-family: "A day without sun text";
   font-size: 4rem;
@@ -19,13 +19,13 @@
 }
 
 .preview-min-size {
-  min-width: 720px;
-  min-height: 1280px;
-  /* min-width: 14rem;
-  min-height: 17.5rem; */
+  // min-width: 720px;
+  // min-height: 1280px;
+  min-width: 14rem;
+  min-height: 17.5rem;
 }
 
 .preview-max-size {
   max-width: 20rem;
   max-height: 64rem;
-}
+} */

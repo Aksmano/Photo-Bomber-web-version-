@@ -14,7 +14,7 @@ const style: CSSProperties = {
   backgroundImage: `url("${window.origin}/background.png")`,
   backgroundSize: "cover",
   backgroundAttachment: "fixed",
-  height: "100%",
+  minHeight: '100%'
 };
 
 const root = ReactDOM.createRoot(

@@ -1,6 +1,6 @@
-import { CSSProperties, Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import "./MainLayout.css";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { PhotoUploadI18NKeys } from "../../utils/translation/domain/photo-upload/PhotoUploadI18N";
 import { t } from "i18next";
 import { createNestedKey } from "../../utils/stringUtils";
@@ -14,7 +14,6 @@ export type MainLayoutOutletContextType = {
 };
 
 export const MainLayout = () => {
-  const navigate = useNavigate();
   const [fileUrl, setFileUrl] = useState<string>("");
   const [sendFile, setIfSendFile] = useState<boolean>(false);
 
@@ -26,13 +25,12 @@ export const MainLayout = () => {
       <div className="main-layout-outlet_container">
         <div className="flex p-1 h-full flex-column gap-1 align-items-center justify-content-start">
           <div
-            style={{ fontFamily: "A day without sun", fontSize: '8rem' }}
-            className="flex text-center mt-7 cursor-pointer"
-            onClick={() => navigate("sss")}
+            style={{ fontFamily: "A day without sun" }}
+            className="flex text-center mt-7 text-8xl"
           >
             {getPageText(PhotoUploadI18NKeys.Header)}
           </div>
-          <div className="flex text-justify mx-3 text-7xl">
+          <div className="flex text-justify mx-3 text-3xl">
             {getPageText(PhotoUploadI18NKeys.Paragraph)}
           </div>
           <Outlet

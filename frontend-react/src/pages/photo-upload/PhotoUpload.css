@@ -22,10 +22,10 @@
 }
 
 .preview-min-size {
-  min-width: 720px;
-  min-height: 1280px;
-  /* min-width: 14rem;
-  min-height: 17.5rem; */
+  /* min-width: 720px;
+  min-height: 1280px; */
+  min-width: 14rem;
+  min-height: 17.5rem;
 }
 
 .inner-preview {
@@ -55,7 +55,7 @@ button {
   padding: 0.5rem 1rem;
   margin-top: 0.75rem;
   background: none;
-  font-size: 4.375rem;
+  font-size: 1.75rem;
   border: 3px solid #8a8a59;
   font-weight: 800;
   background-color: white;
@@ -64,7 +64,7 @@ button {
 .capture-button {
   color: black;
   font-family: "A day without sun text";
-  font-size: 4rem;
+  font-size: 1.5rem;
   background-color: white;
   border: 2px solid #a8a8a8;
   margin: 0.5rem;
@@ -79,7 +79,7 @@ button {
   margin: 0.5rem;
 }
 
-.preview-max-size-img {
+/* .preview-max-size-img {
   max-width: 720px;
   max-height: 1280px;
-}
+} */

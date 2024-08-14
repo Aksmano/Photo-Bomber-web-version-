@@ -1,6 +1,5 @@
 import { v4 } from "uuid";
 import { MediaFileChunkMetadata } from "../dto/MediaFileChunkMetadata";
-import { MutableRefObject } from "react";
 
 export const useMediaFileUpload = () => {
   const getFileTypeName = (type: string) => type.split("/")[1];
@@ -98,7 +97,19 @@ export const useMediaFileUpload = () => {
     }
   };
 
+  const downloadMediaFile = (fileUrl: string, fileName: string): void => {
+    const link = document.createElement("a");
+
+    link.href = fileUrl;
+    link.download = fileName;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return {
     uploadMediaFileToDrive,
+    downloadMediaFile,
   };
 };

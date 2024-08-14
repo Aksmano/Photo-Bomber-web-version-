@@ -1,11 +1,60 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 // import {  } from "@ffmpeg/ffmpeg/dist";
 import { fetchFile } from "@ffmpeg/util";
-import { useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
+import { UploadType } from "../domain/UploadType";
+import { FileData } from "@ffmpeg/ffmpeg/dist/esm/types";
+import { useIndexedDBMediaFile } from "./useIndexedDBMediaFile";
 
-export const useMediaFileCompress = () => {
+export enum IDBMediaFileBinaryDataKeys {
+  Data = "cache_data",
+  Type = "cache_type",
+}
+
+export interface IDBMediaFileBinaryData {
+  data: FileData;
+  type: UploadType;
+}
+
+export const useMediaFileCompress = (
+  setLoadingProgress: Dispatch<SetStateAction<number>>
+) => {
+  const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [compressionProgress, setCompressionProgress] = useState<number>(0);
+
   const ffmpegRef = useRef<FFmpeg>(new FFmpeg());
+  const { addMediaFileBinaryData } = useIndexedDBMediaFile();
+
+  useEffect(() => {
+    if (compressionProgress > 0 && videoDuration > 0)
+      setLoadingProgress(
+        Math.round((compressionProgress / videoDuration) * 100)
+      );
+    //eslint-disable-next-line
+  }, [compressionProgress]);
+
+  const loadffmpeg = async () => {
+    ffmpegRef.current.on("log", ({ message }) => {
+      if (!message.includes("time=")) {
+        return;
+      }
+
+      const times = message
+        .split("time=")[1]
+        .split(" ")[0]
+        .split(":")
+        .reverse()
+        .map((t, i) => parseFloat(t) * Math.pow(60, i));
+
+      if (!times.every((t) => t >= 0)) {
+        return;
+      }
+
+      setCompressionProgress(times.reduce((acc, v) => acc + v, 0));
+    });
+    await ffmpegRef.current.load();
+  };
 
   const compressPhoto = async (
     file: File,
@@ -13,30 +62,26 @@ export const useMediaFileCompress = () => {
     quality: number = 28
   ) => {
     if (!ffmpegRef.current.loaded) {
-      await ffmpegRef.current.load();
+      await loadffmpeg();
     }
 
-    // Write the input file to the ffmpeg.wasm virtual file system
     await ffmpegRef.current.writeFile(`input.${type}`, await fetchFile(file));
-
-    // Run the ffmpeg command to compress the image with the specified quality
     await ffmpegRef.current.exec([
       "-i",
       `input.${type}`,
-      //   "-vf",
-      //   'scale="-1:1024"',
       "-q:v",
       "16",
       "output.jpg",
     ]);
-
-    // Read the output image file
     const data = await ffmpegRef.current.readFile("output.jpg");
 
-    console.log(data);
+    const imageFile = new File([data], v4(), { type: `image/jpg` });
 
-    // Create a Blob and object URL from the output image
-    const imageFile = new File([data], v4(), { type: `image/jpeg` });
+    setVideoDuration(0);
+    setCompressionProgress(0);
+
+    await addMediaFileBinaryData({ data, type: UploadType.Photo });
+
     return {
       fileUrl: URL.createObjectURL(imageFile),
       compressedFile: imageFile,
@@ -45,13 +90,25 @@ export const useMediaFileCompress = () => {
 
   const compressVideo = async (file: File, type: string) => {
     if (!ffmpegRef.current.loaded) {
-      await ffmpegRef.current.load();
+      await loadffmpeg();
     }
 
-    // Write the input file to the ffmpeg.wasm virtual file system
-    await ffmpegRef.current.writeFile(`input.${type}`, await fetchFile(file));
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(file);
 
-    // Run the ffmpeg command to compress the image with the specified quality
+    const getVideoDuration = () => {
+      return new Promise<number>((resolve) => {
+        video.onloadedmetadata = () => {
+          resolve(parseFloat(video.duration.toFixed(2)));
+          URL.revokeObjectURL(video.src);
+        };
+      });
+    };
+
+    const videoDur = await getVideoDuration();
+    setVideoDuration(videoDur);
+
+    await ffmpegRef.current.writeFile(`input.${type}`, await fetchFile(file));
     await ffmpegRef.current.exec([
       "-i",
       `input.${type}`, // Input file
@@ -60,17 +117,20 @@ export const useMediaFileCompress = () => {
       "-c:v",
       "libx264", // Codec
       "-preset",
-      "slow", // Compression quality
+      "ultrafast", // Compression quality
       "-crf",
       "28", // Constant Rate Factor (adjust quality)
       "output.mp4",
     ]);
-
-    // Read the output image file
     const data = await ffmpegRef.current.readFile("output.mp4");
 
-    // Create a Blob and object URL from the output image
     const videoFile = new File([data], v4(), { type: `video/mp4` });
+    setVideoDuration(0);
+    setCompressionProgress(0);
+    setLoadingProgress(0);
+
+    await addMediaFileBinaryData({ data, type: UploadType.Video });
+
     return {
       fileUrl: URL.createObjectURL(videoFile),
       compressedFile: videoFile,
@@ -81,47 +141,4 @@ export const useMediaFileCompress = () => {
     compressPhoto,
     compressVideo,
   };
-
-  //   async function compressVideo(file) {
-  //     if (!ffmpeg.isLoaded()) {
-  //       await ffmpeg.load();
-  //     }
-
-  //     // Write the input file to the ffmpeg.wasm virtual file system
-  //     ffmpeg.FS("writeFile", "input.mp4", await fetchFile(file));
-
-  //     // Get the duration of the video
-  //     await ffmpeg.run("-i", "input.mp4");
-  //     const ffmpegOutput = ffmpeg.FS("readFile", "input.mp4");
-  //     const durationMatch = /Duration: (\d+):(\d+):(\d+\.\d+)/.exec(ffmpegOutput);
-  //     const durationInSeconds =
-  //       parseInt(durationMatch[1]) * 3600 +
-  //       parseInt(durationMatch[2]) * 60 +
-  //       parseFloat(durationMatch[3]);
-
-  //     // Calculate the target bitrate in kbps for a 100MB file
-  //     const targetSizeInBits = 100 * 8 * 1024 * 1024;
-  //     const targetBitrate = targetSizeInBits / durationInSeconds;
-
-  //     // Run the ffmpeg command to compress the video with the calculated bitrate
-  //     await ffmpeg.run(
-  //       "-i",
-  //       "input.mp4",
-  //       "-b:v",
-  //       `${Math.round(targetBitrate / 1000)}k`,
-  //       "-c:a",
-  //       "aac",
-  //       "output.mp4"
-  //     );
-
-  //     // Read the output video file
-  //     const data = ffmpeg.FS("readFile", "output.mp4");
-
-  //     // Create a Blob and object URL from the output video
-  //     const videoBlob = new Blob([data.buffer], { type: "video/mp4" });
-  //     const url = URL.createObjectURL(videoBlob);
-
-  //     // Display the compressed video
-  //     document.getElementById("outputVideo").src = url;
-  //   }
 };
